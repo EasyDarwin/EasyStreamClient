@@ -1,8 +1,8 @@
 /*
-	Copyright (c) 2014-2019 TSINGSEE.com.  All rights reserved.
-	Github: https://github.com/tsingsee
-	WEChat: tsingsee
-	Website: http://open.tsingsee.com
+	Copyright (c) 2012-2024 EasyDarwin.org  All rights reserved.
+	Github: https://github.com/easydarwin
+	WEChat: EasyDarwin
+	Website: http://www.easydarwin.org
 */
 #include <stdio.h>
 #include <string.h>
@@ -13,7 +13,7 @@ FILE* fVideo = NULL;
 FILE* fAudio = NULL;
 
 char* fRTSPURL = NULL;		//rtsp source addrs
-int fTransType = 0;			//0 : TCP    1 : UDP
+int fTransType = 0;		//0 : TCP    1 : UDP
 bool fSaveFile = true;		//true : save file     false : don't save
 
 
@@ -37,7 +37,7 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 				::fwrite(pBuf, 1, _frameInfo->length, fVideo);
 			}
 			/* 
-				|H.264£ºSPS+PPS+IDR|
+				|H.264Â£ÂºSPS+PPS+IDR|
 				|---------------------|----------------|-------------------------------------|
 				|                     |                |                                     |
 				0-----------------reserved1--------reserved2-------------------------------length
@@ -247,7 +247,7 @@ void PrintUsage(char const* progName)
 	printf("%s -d <rtsp-url>[ -m <transport-mode> -s <save-file>]\n", progName);
 	printf("Help Mode:   %s -h \n", progName );
 	printf("rtsp-url : source rtsp address\ntransport-mode : tcp or udp, default is tcp\nsave-file : yes or no, default is yes\n");
-	printf("For example: %s -d rtsp://admin:admin@192.168.2.100/11 -m tcp -s yes\n", progName); 
+	printf("For example: %s -d http://devimages.apple.com/iphone/samples/bipbop/gear3/prog_index.m3u8 -m tcp -s yes\n", progName); 
 	printf("--------------------------------------------------------------\n");
 }
 
@@ -256,7 +256,7 @@ int main(int argc, char** argv)
 	printf("\n*****************EasyStreamClient-v3.1.240724*******************\n");
 
 	int ch;
-	// We need at least one "rtsp://" URL argument:
+	// We need at least one "rtsp://" or "http://" or "rtmp://" or "tcp://" or "udp://" URL argument:
 	if (argc < 2)
 	{
 		PrintUsage(argv[0]);
