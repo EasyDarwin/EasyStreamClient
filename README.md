@@ -23,7 +23,7 @@ EasyStreamClient是一款支持File、RTSP、RTMP、HTTP等各种流媒体协议
 		rtsp-url : source rtsp address
 		transport-mode : tcp or udp, default is tcp
 		save-file : yes or no, default is yes
-		For example: EasyStreamClient.exe -d rtsp://admin:admin@192.168.2.100/11 -m tcp -s yes
+		For example: EasyStreamClient.exe -d "http://devimages.apple.com/iphone/samples/bipbop/gear3/prog_index.m3u8" -m tcp -s yes
 		--------------------------------------------------------------
 
 
@@ -73,6 +73,6 @@ EASY\_SDK\_AUDIO\_FRAME\_FLAG数据可支持多种音频格式：
 	#define EASY_SDK_AUDIO_CODEC_G711U			/* G711 ulaw*/
 	#define EASY_SDK_AUDIO_CODEC_G726			/* G726 */
 
-## 更多流媒体音视频资源
+## 详细讲解视频及更多流媒体音视频技术资源
 
 EasyDarwin开源流媒体服务器：<a href="https://www.easydarwin.org" target="_blank" title="EasyDarwin开源流媒体服务器">www.EasyDarwin.org</a>
