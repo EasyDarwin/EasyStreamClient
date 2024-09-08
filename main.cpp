@@ -12,12 +12,12 @@
 FILE* fVideo = NULL;
 FILE* fAudio = NULL;
 
-char* fRTSPURL = NULL;		//rtsp source addrs
-int fTransType = 0;		//0 : TCP    1 : UDP
+char* fStreamURL = NULL;	//stream source addrs
+int fTransType = 0;			//0 : TCP    1 : UDP
 bool fSaveFile = true;		//true : save file     false : don't save
 
 
-Easy_Handle fRTSPHandle = 0;
+Easy_Handle fStreamHandle = 0;
 
 int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void* pBuf, EASY_FRAME_INFO* _frameInfo)
 {
@@ -208,17 +208,17 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 	{
 		if (NULL == pBuf && NULL == _frameInfo)
 		{
-			printf("Connecting:%s ...\n", fRTSPURL);
+			printf("Connecting:%s ...\n", fStreamURL);
 		}
 
 		else if (NULL != _frameInfo && _frameInfo->codec == EASY_SDK_EVENT_CODEC_ERROR)
 		{
-			printf("Error:%s, %s ...\n", fRTSPURL, pBuf?pBuf:"null" );
+			printf("Error:%s, %s ...\n", fStreamURL, pBuf?pBuf:"null" );
 		}
 
 		else if (NULL != _frameInfo && _frameInfo->codec == EASY_SDK_EVENT_CODEC_EXIT)
 		{
-			printf("Exit:%s,Error: ...\n", fRTSPURL);
+			printf("Exit:%s,Error: ...\n", fStreamURL);
 		}
 	}
 	else if (_frameType == EASY_SDK_MEDIA_INFO_FLAG)
@@ -228,7 +228,7 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 			EASY_MEDIA_INFO_T mediainfo;
 			memset(&mediainfo, 0x00, sizeof(EASY_MEDIA_INFO_T));
 			memcpy(&mediainfo, pBuf, sizeof(EASY_MEDIA_INFO_T));
-			printf("RTSP DESCRIBE Get Media Info: video:%u fps:%u audio:%u channel:%u sampleRate:%u \n", 
+			printf("Get Media Info: video:%u fps:%u audio:%u channel:%u sampleRate:%u \n", 
 				mediainfo.u32VideoCodec, mediainfo.u32VideoFps, mediainfo.u32AudioCodec, mediainfo.u32AudioChannel, mediainfo.u32AudioSamplerate);
 		}
 	}
@@ -237,16 +237,16 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 
 void usage(char const* progName) 
 {
-  printf("Usage: %s <rtsp-url> \n", progName);
+  printf("Usage: %s <stream-url> \n", progName);
 }
 
 void PrintUsage(char const* progName)
 {
 	printf("Usage:\n");
 	printf("--------------------------------------------------------------\n");
-	printf("%s -d <rtsp-url>[ -m <transport-mode> -s <save-file>]\n", progName);
+	printf("%s -d <stream-url>[ -m <transport-mode> -s <save-file>]\n", progName);
 	printf("Help Mode:   %s -h \n", progName );
-	printf("rtsp-url : source rtsp address\ntransport-mode : tcp or udp, default is tcp\nsave-file : yes or no, default is yes\n");
+	printf("stream-url : source address\ntransport-mode : tcp or udp, default is tcp\nsave-file : yes or no, default is yes\n");
 	printf("For example: %s -d http://devimages.apple.com/iphone/samples/bipbop/gear3/prog_index.m3u8 -m tcp -s yes\n", progName); 
 	printf("--------------------------------------------------------------\n");
 }
@@ -274,7 +274,7 @@ int main(int argc, char** argv)
 			return 0;
 			break;
 		case 'd':
-			fRTSPURL = optarg;
+			fStreamURL = optarg;
 			break;
 		case 'm':
 			if((strlen(optarg) == 3) && ((0 == strcmp(optarg, "UDP"))|| (0 == strcmp(optarg, "udp"))))
@@ -303,22 +303,24 @@ int main(int argc, char** argv)
 	}
 
 
-	int init= EasyStreamClient_Init(&fRTSPHandle, 0);
+	int init= EasyStreamClient_Init(&fStreamHandle, 0);
 
-	if (NULL == fRTSPHandle) return 0;
+	if (NULL == fStreamHandle) return 0;
 	
-	EasyStreamClient_SetCallback(fRTSPHandle, __StreamClientCallBack);
+	EasyStreamClient_SetCallback(fStreamHandle, __StreamClientCallBack);
 
 	if(fTransType == 0)
-		EasyStreamClient_OpenStream(fRTSPHandle, fRTSPURL, EASY_RTP_OVER_TCP, NULL, 1000, 8, 0x00);
+		EasyStreamClient_OpenStream(fStreamHandle, fStreamURL, EASY_RTP_OVER_TCP, NULL, 1000, 8, 0x00);
 	else
-		EasyStreamClient_OpenStream(fRTSPHandle, fRTSPURL, EASY_RTP_OVER_UDP, NULL, 1000, 8, 0x00);
+		EasyStreamClient_OpenStream(fStreamHandle, fStreamURL, EASY_RTP_OVER_UDP, NULL, 1000, 8, 0x00);
+		
+	EasyStreamClient_SetAudioEnable(fStreamHandle, 1);
 
 	printf("Press Enter exit...\n");
 	getchar();
    
-	EasyStreamClient_Deinit(fRTSPHandle);
-	fRTSPHandle = NULL;
+	EasyStreamClient_Deinit(fStreamHandle);
+	fStreamHandle = NULL;
 
     return 0;
 }
