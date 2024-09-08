@@ -1,6 +1,6 @@
 # EasyStreamClient
 
-EasyStreamClient是一款支持File、RTSP、RTMP、HTTP等各种流媒体协议的音视频提取功能组件，支持H.264、H.265、PCM、AAC等各种音视频编码格式输出，支持Windows、Linux、Android、iOS、ARM等各种平台。EasyStreamClient support all kinds of streaming protocol, callback video & audio data，you can use this as easy ffmpeg !
+EasyStreamClient是基于ffmpeg二次封装的一款支持File、RTSP、RTMP、HTTP等各种流媒体协议的音视频提取功能组件，可以说只要ffmpeg能干的，EasyStreamClient就能干，站在巨人的肩膀上，EasyStreamClient支持H.264、H.265、PCM、AAC等各种音视频编码格式，支持Windows、Linux、Android、iOS、ARM等各种平台。EasyStreamClient support all kinds of streaming protocol, callback video & audio data，you can use this as easy ffmpeg !
 
 ## 编译与运行
 
