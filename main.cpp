@@ -16,7 +16,6 @@ char* fStreamURL = NULL;	//stream source addrs
 int fTransType = 0;			//0 : TCP    1 : UDP
 bool fSaveFile = true;		//true : save file     false : don't save
 
-
 Easy_Handle fStreamHandle = 0;
 
 int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void* pBuf, EASY_FRAME_INFO* _frameInfo)
@@ -247,7 +246,7 @@ void PrintUsage(char const* progName)
 	printf("%s -d <stream-url>[ -m <transport-mode> -s <save-file>]\n", progName);
 	printf("Help Mode:   %s -h \n", progName );
 	printf("stream-url : source address\ntransport-mode : tcp or udp, default is tcp\nsave-file : yes or no, default is yes\n");
-	printf("For example: %s -d http://devimages.apple.com/iphone/samples/bipbop/gear3/prog_index.m3u8 -m tcp -s yes\n", progName); 
+	printf("For example: %s -d \“http://devimages.apple.com/iphone/samples/bipbop/gear3/prog_index.m3u8\" -m tcp -s yes\n", progName); 
 	printf("--------------------------------------------------------------\n");
 }
 
@@ -260,7 +259,7 @@ int main(int argc, char** argv)
 	if (argc < 2)
 	{
 		PrintUsage(argv[0]);
-		printf("Press Enter exit...\n");
+		printf("Press any key exit...\n");
 		getchar();
 		return 1;
 	}
@@ -316,7 +315,7 @@ int main(int argc, char** argv)
 		
 	EasyStreamClient_SetAudioEnable(fStreamHandle, 1);
 
-	printf("Press Enter exit...\n");
+	printf("Press any key exit...\n");
 	getchar();
    
 	EasyStreamClient_Deinit(fStreamHandle);
