@@ -16,6 +16,7 @@ char* fStreamURL = NULL;	//stream source addrs
 int fTransType = 0;			//0 : TCP    1 : UDP
 bool fSaveFile = true;		//true : save file     false : don't save
 
+
 Easy_Handle fStreamHandle = 0;
 
 int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void* pBuf, EASY_FRAME_INFO* _frameInfo)
@@ -43,22 +44,12 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 			*/
 			if (_frameInfo->type == EASY_SDK_VIDEO_FRAME_I)
 			{
-				//char sps[2048] = { 0 };
-				//char pps[2048] = { 0 };
-				//char* IFrame = NULL;
-				//unsigned int spsLen,ppsLen,iFrameLen = 0;
+				unsigned int spsLen,ppsLen,iFrameLen = 0;
+				spsLen = _frameInfo->reserved1;							// SPS
+				ppsLen = _frameInfo->reserved2 - _frameInfo->reserved1;	// PPS
+				iFrameLen = _frameInfo->length - _frameInfo->reserved2;	// IDR
 
-				//spsLen = _frameInfo->reserved1;							// SPS
-				//ppsLen = _frameInfo->reserved2 - _frameInfo->reserved1;	// PPS
-				//iFrameLen = _frameInfo->length - spsLen - ppsLen;		// IDR
-
-				//memcpy(sps, pBuf, spsLen);			//SPS
-				//memcpy(pps, (char*)pBuf+spsLen, ppsLen);	//PPS
-				//IFrame = (char*)pBuf + spsLen + ppsLen;	//IDR
-
-				//printf("Get I H264(%d * %d) SPS/PPS/IDR Len:%d/%d/%d \ttimestamp:%u.%u\n",_frameInfo->width, _frameInfo->height, spsLen, ppsLen, iFrameLen, _frameInfo->timestamp_sec, _frameInfo->timestamp_usec);
-
-				printf("Get I H264(%d * %d) Len:%d \ttimestamp:%u.%u\n", _frameInfo->width, _frameInfo->height, _frameInfo->length, _frameInfo->timestamp_sec, _frameInfo->timestamp_usec);
+				printf("Get I H264(%d * %d) SPS/PPS/IDR Len:%d/%d/%d \ttimestamp:%u.%u\n",_frameInfo->width, _frameInfo->height, spsLen, ppsLen, iFrameLen, _frameInfo->timestamp_sec, _frameInfo->timestamp_usec);
 			}
 			else if (_frameInfo->type == EASY_SDK_VIDEO_FRAME_P)
 			{
@@ -85,26 +76,14 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 			}
 			if (_frameInfo->type == EASY_SDK_VIDEO_FRAME_I)
 			{
-				//char vps[2048] = { 0 };
-				//char sps[2048] = { 0 };
-				//char pps[2048] = { 0 };
-				//char* IFrame = NULL;
-				//unsigned int vpsLen,spsLen,ppsLen,iFrameLen = 0;
 
-				//vpsLen = _frameInfo->reserved1;							//VPS
-				//spsLen = _frameInfo->reserved2 - _frameInfo->reserved1;	// SPS
-				//ppsLen = _frameInfo->reserved3 - _frameInfo->reserved2;	// PPS
-				//iFrameLen = _frameInfo->length - vpsLen - spsLen - ppsLen;// IDR
+				unsigned int vpsLen,spsLen,ppsLen,iFrameLen = 0;
+				vpsLen = _frameInfo->reserved1;							//VPS
+				spsLen = _frameInfo->reserved2 - _frameInfo->reserved1;	// SPS
+				ppsLen = _frameInfo->reserved3 - _frameInfo->reserved2;	// PPS
+				iFrameLen = _frameInfo->length - _frameInfo->reserved3;	// IDR
 
-				//memcpy(vps, pBuf, vpsLen);
-				//memcpy(sps, (char*)pBuf+vpsLen, spsLen);			//SPS
-				//memcpy(pps, (char*)pBuf+vpsLen+spsLen, ppsLen);	//PPS
-				//IFrame = (char*)pBuf + vpsLen + spsLen + ppsLen;	//IDR
-
-				//printf("Get I H265(%d * %d) VPS/SPS/PPS/IDR Len:%d/%d/%d/%d \ttimestamp:%u.%u\n",_frameInfo->width, _frameInfo->height, vpsLen, spsLen, ppsLen, iFrameLen, _frameInfo->timestamp_sec, _frameInfo->timestamp_usec);
-
-				printf("Get I H265(%d * %d) Len:%d \ttimestamp:%u.%u\n", _frameInfo->width, _frameInfo->height, _frameInfo->length, _frameInfo->timestamp_sec, _frameInfo->timestamp_usec);
-
+				printf("Get I H265(%d * %d) VPS/SPS/PPS/IDR Len:%d/%d/%d/%d \ttimestamp:%u.%u\n",_frameInfo->width, _frameInfo->height, vpsLen, spsLen, ppsLen, iFrameLen, _frameInfo->timestamp_sec, _frameInfo->timestamp_usec);
 			}
 			else if (_frameInfo->type == EASY_SDK_VIDEO_FRAME_P)
 			{
@@ -246,7 +225,7 @@ void PrintUsage(char const* progName)
 	printf("%s -d <stream-url>[ -m <transport-mode> -s <save-file>]\n", progName);
 	printf("Help Mode:   %s -h \n", progName );
 	printf("stream-url : source address\ntransport-mode : tcp or udp, default is tcp\nsave-file : yes or no, default is yes\n");
-	printf("For example: %s -d \“http://devimages.apple.com/iphone/samples/bipbop/gear3/prog_index.m3u8\" -m tcp -s yes\n", progName); 
+	printf("For example: %s -d \"http://devimages.apple.com/iphone/samples/bipbop/gear3/prog_index.m3u8\" -m tcp -s yes\n", progName); 
 	printf("--------------------------------------------------------------\n");
 }
 
@@ -259,7 +238,7 @@ int main(int argc, char** argv)
 	if (argc < 2)
 	{
 		PrintUsage(argv[0]);
-		printf("Press any key exit...\n");
+		printf("Press Enter exit...\n");
 		getchar();
 		return 1;
 	}
@@ -315,7 +294,7 @@ int main(int argc, char** argv)
 		
 	EasyStreamClient_SetAudioEnable(fStreamHandle, 1);
 
-	printf("Press any key exit...\n");
+	printf("Press Enter exit...\n");
 	getchar();
    
 	EasyStreamClient_Deinit(fStreamHandle);
