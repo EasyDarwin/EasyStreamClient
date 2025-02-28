@@ -16,7 +16,6 @@ char* fStreamURL = NULL;	//stream source addrs
 int fTransType = 0;			//0 : TCP    1 : UDP
 bool fSaveFile = true;		//true : save file     false : don't save
 
-
 Easy_Handle fStreamHandle = 0;
 
 int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void* pBuf, EASY_FRAME_INFO* _frameInfo)
@@ -37,7 +36,7 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 				::fwrite(pBuf, 1, _frameInfo->length, fVideo);
 			}
 			/* 
-				|H.264拢潞SPS+PPS+IDR|
+				|H.264 SPS+PPS+IDR|
 				|---------------------|----------------|-------------------------------------|
 				|                     |                |                                     |
 				0-----------------reserved1--------reserved2-------------------------------length
@@ -57,6 +56,7 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 			}
 		}
 		/*
+			|H.265 VPS+SPS+PPS+IDR|
 			|-----vps-----|-----sps-----|-----pps-----|-----I Frame-----|
 			|             |             |             |                 |
 			0--------reserved1-----reserved2------reserved3-----------length
@@ -78,7 +78,7 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 			{
 
 				unsigned int vpsLen,spsLen,ppsLen,iFrameLen = 0;
-				vpsLen = _frameInfo->reserved1;							//VPS
+				vpsLen = _frameInfo->reserved1;							// VPS
 				spsLen = _frameInfo->reserved2 - _frameInfo->reserved1;	// SPS
 				ppsLen = _frameInfo->reserved3 - _frameInfo->reserved2;	// PPS
 				iFrameLen = _frameInfo->length - _frameInfo->reserved3;	// IDR
@@ -182,21 +182,46 @@ int Easy_APICALL __StreamClientCallBack(void* _channelPtr, int _frameType, void*
 		if(fSaveFile)
 			::fwrite(pBuf, 1, _frameInfo->length, fAudio);
 	}
+
+	//EASY_STREAM_CLIENT_STATE_CONNECTING = 1,		 /* 连接中 */
+	//EASY_STREAM_CLIENT_STATE_CONNECTED,              /* 连接成功 */
+	//EASY_STREAM_CLIENT_STATE_CONNECT_FAILED,         /* 连接失败 */
+	//EASY_STREAM_CLIENT_STATE_CONNECT_ABORT,          /* 连接中断 */
+	//EASY_STREAM_CLIENT_STATE_PUSHING,                /* 推流中 */
+	//EASY_STREAM_CLIENT_STATE_DISCONNECTED,           /* 断开连接 */
+	//EASY_STREAM_CLIENT_STATE_EXIT,					 /* 退出连接 */
+	//EASY_STREAM_CLIENT_STATE_ERROR
+
 	else if (_frameType == EASY_SDK_EVENT_FRAME_FLAG)
 	{
-		if (NULL == pBuf && NULL == _frameInfo)
+		if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECTING)
 		{
-			printf("Connecting:%s ...\n", fStreamURL);
+			printf("Connecting:%s, %s ...\n", fStreamURL, pBuf?pBuf:"null" );
 		}
 
-		else if (NULL != _frameInfo && _frameInfo->codec == EASY_SDK_EVENT_CODEC_ERROR)
+		if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECTED)
 		{
-			printf("Error:%s, %s ...\n", fStreamURL, pBuf?pBuf:"null" );
+			printf("Connected:%s, %s ...\n", fStreamURL, pBuf?pBuf:"null" );
 		}
 
-		else if (NULL != _frameInfo && _frameInfo->codec == EASY_SDK_EVENT_CODEC_EXIT)
+		else if (NULL != _frameInfo && _frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECT_FAILED)
 		{
-			printf("Exit:%s,Error: ...\n", fStreamURL);
+			printf("ConnectFail:%s, %s ...\n", fStreamURL, pBuf?pBuf:"null" );
+		}
+
+		else if (NULL != _frameInfo && _frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECT_ABORT)
+		{
+			printf("ConnectAbord:%s, %s ...\n", fStreamURL, pBuf?pBuf:"null" );
+		}
+
+		else if (NULL != _frameInfo && _frameInfo->codec == EASY_STREAM_CLIENT_STATE_DISCONNECTED)
+		{
+			printf("Disconnected:%s, %s ...\n", fStreamURL, pBuf?pBuf:"null" );
+		}
+
+		else if (NULL != _frameInfo && _frameInfo->codec == EASY_STREAM_CLIENT_STATE_EXIT)
+		{
+			printf("Exit:%s, %s ...\n", fStreamURL, pBuf?pBuf:"null" );
 		}
 	}
 	else if (_frameType == EASY_SDK_MEDIA_INFO_FLAG)
@@ -300,5 +325,7 @@ int main(int argc, char** argv)
 	EasyStreamClient_Deinit(fStreamHandle);
 	fStreamHandle = NULL;
 
+
+	getchar();
     return 0;
 }
